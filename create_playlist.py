@@ -33,7 +33,19 @@ def getOfflineMusicDetail(tid):
 	return detail
 
 def writePlaylistToFile(pid, playlistName):
-	file = codecs.open(playlistName + ".m3u", "w", "utf-8")
+	fname = playlistName.decode('gbk')
+	# for windows path format
+	fname = fname.replace('&','')
+	fname = fname.replace(':','')
+	fname = fname.replace('/','')
+	fname = fname.replace('\\','')
+	fname = fname.replace('?','!')
+	fname = fname.replace('<','')
+	fname = fname.replace('>','')
+	fname = fname.replace('*','')
+	fname = fname.replace('"','')
+
+	file = codecs.open(fname + ".m3u", "w", "utf-8")
 	count = 0
 	try:
 		file.writelines("#EXTM3U")
@@ -44,14 +56,14 @@ def writePlaylistToFile(pid, playlistName):
 				if detail is not None:
 					count=count + 1
 					file.writelines(u"\n#EXTINF:" + detail[0] + u"\n" + detail[1])
-	except Exception, e:
+	except Exception as e:
 		raise
 	else:
 		pass
 	finally:
 		file.close()
 		if count <= 0:
-			os.remove(playlistName + ".m3u")
+			os.remove(fname + ".m3u")
 
 def getPlaylistNameFromJson(jsonStr):
 	playlistDetail = json.loads(jsonStr)
@@ -63,8 +75,15 @@ def getMusicNameFromJson(jsonStr):
 
 def main():
 	playlists = getPlaylist()
+	count = 0
+	numOfList = 39
 	for item in playlists:
+		print(item)
+		print(item[1].decode('gbk'))
 		writePlaylistToFile(item[0], item[1])
+		count = count + 1
+		if count > numOfList:
+			break
 
 if __name__ == '__main__':
 	main()
