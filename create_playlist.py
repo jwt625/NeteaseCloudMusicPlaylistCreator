@@ -5,6 +5,9 @@ import os
 
 cx = sqlite3.connect(os.path.expanduser('~')+"/AppData/Local/Netease/CloudMusic/Library/webdb.dat")
 cx.row_factory = sqlite3.Row
+# use local library (including matched) instead of only downloaded
+cx2 = sqlite3.connect(os.path.expanduser('~')+"/AppData/Local/Netease/CloudMusic/Library/library.dat")
+cx2.row_factory = sqlite3.Row
 
 def getPlaylist():
 	cu=cx.cursor()
@@ -24,12 +27,12 @@ def getPlayListMusic(pid):
 	return musics
 
 def getOfflineMusicDetail(tid):
-	cu=cx.cursor()
-	cu.execute("select * from web_offline_track where track_id=?",[tid]) 
+	cu=cx2.cursor()
+	cu.execute("select * from track where tid=?",[tid]) 
 	music = cu.fetchone()
 	if music is None:
 		return None
-	detail = (getMusicNameFromJson(music["detail"]), music["relative_path"])
+	detail = (music["title"], music["file"])
 	return detail
 
 def writePlaylistToFile(pid, playlistName):
@@ -70,7 +73,7 @@ def getMusicNameFromJson(jsonStr):
 def main():
 	playlists = getPlaylist()
 	count = 0
-	numOfList = 39
+	numOfList = 40
 	for item in playlists:
 		print(item)
 		print(item[1].decode('gbk'))
