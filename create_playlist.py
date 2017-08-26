@@ -35,15 +35,9 @@ def getOfflineMusicDetail(tid):
 def writePlaylistToFile(pid, playlistName):
 	fname = playlistName.decode('gbk')
 	# for windows path format
-	fname = fname.replace('&','')
-	fname = fname.replace(':','')
-	fname = fname.replace('/','')
-	fname = fname.replace('\\','')
-	fname = fname.replace('?','!')
-	fname = fname.replace('<','')
-	fname = fname.replace('>','')
-	fname = fname.replace('*','')
-	fname = fname.replace('"','')
+	forbiddenCh = ['&', ':', '/', '\\', '?', '<', '>', '*', '"']
+	for ch in forbiddenCh:
+		fname = fname.replace(ch, '_')
 
 	file = codecs.open(fname + ".m3u", "w", "utf-8")
 	count = 0
