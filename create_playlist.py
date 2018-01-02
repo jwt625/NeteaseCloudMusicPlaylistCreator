@@ -35,6 +35,43 @@ def getOfflineMusicDetail(tid):
 	detail = (music["title"], music["file"])
 	return detail
 
+
+def getOffLineMusicArtist(tid):
+	cu=cx2.cursor()
+	cu.execute("select * from track where tid=?",[tid]) 
+	music = cu.fetchone()
+	if music is None:
+		return None
+	return music["artist"]
+
+
+def writeArtistToFile(pid, playlistName):
+    fname = playlistName.decode('gbk')
+    # for windows path format
+    forbiddenCh = ['&', ':', '/', '\\', '?', '<', '>', '*', '"']
+    for ch in forbiddenCh:
+        fname = fname.replace(ch, '_')
+    file = codecs.open(fname + "_artist.m3u", "w", "utf-8")
+    count = 0
+    try:
+#		file.writelines("#EXTM3U")
+        musicIds, orders = getPlayListMusic(pid)
+        for tid in musicIds:
+            if tid is not None:
+                artist=getOffLineMusicArtist(tid)
+                if artist is not None:
+                    count=count + 1
+                    print(count)
+                    file.writelines(u'"'+artist[1:len(artist)-1]+u'",')
+    except Exception as e:
+        raise
+    else:
+        pass
+    finally:
+        file.close()
+        if count <= 0:
+            os.remove(fname + "_artist.m3u")
+
 def writePlaylistToFile(pid, playlistName):
 	fname = playlistName.decode('gbk')
 	# for windows path format
